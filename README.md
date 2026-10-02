@@ -6,7 +6,7 @@
 | **Website repo** | https://github.com/Tharaka-98/AIEcoSystemZonar |
 | **Live website** | https://ai-eco-system-zonar.vercel.app |
 | **Telegram bot** | [@ZonaraDemo_bot](https://t.me/ZonaraDemo_bot) |
-| **Author** | Tharaka Senevirathne, Master of IT, Charles Darwin University (CDU IT Code Fair 2026) |
+| **Author** | Tharaka Senevirathne |
 
 This is the backend for the Zonar website. It **scores community messages for quality (0–100)**, explains each score, and **gives reward points to useful contributors**. Spam, hype and duplicate messages earn nothing. It works with two clients:
 
