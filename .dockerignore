@@ -1,0 +1,15 @@
+# Keep the Docker build context small and secret-free
+**/bin
+**/obj
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/appsettings.Local.json
+**/.DS_Store
+.git
+.gitignore
+.vs
+.vscode
+.idea
+tests/
+README.md

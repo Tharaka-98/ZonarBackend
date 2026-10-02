@@ -1,0 +1,74 @@
+# ============================================================
+#  ZonarBackend – .gitignore (.NET 10 / ASP.NET Core)
+# ============================================================
+
+# ---------- Secrets – NEVER commit ----------
+appsettings.Local.json
+**/appsettings.Local.json
+appsettings.*.Local.json
+*.pfx
+*.p12
+.env
+.env.*
+secrets.json
+
+# ---------- Local database (SQLite) ----------
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ---------- Build output ----------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm64/
+publish/
+out/
+artifacts/
+
+# ---------- Test results / coverage ----------
+[Tt]est[Rr]esult*/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+
+# ---------- NuGet ----------
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# ---------- IDEs / editors ----------
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+.idea/
+*.user
+*.suo
+*.userprefs
+*.sln.iml
+*.swp
+*~
+
+# ---------- OS files ----------
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# ---------- Logs ----------
+*.log
+logs/
