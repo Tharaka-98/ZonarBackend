@@ -42,9 +42,11 @@ public class ZonarDbContext : DbContext
             e.HasOne(x => x.Contributor).WithMany(x => x.Contributions).HasForeignKey(x => x.ContributorId);
         });
 
-        // SQLite has no time-zone type: everything is saved as UTC, so mark values as UTC when reading back.
+        // Every timestamp is UTC. SQLite has no time-zone type, so mark values as UTC when reading back;
+        // PostgreSQL's "timestamp with time zone" requires Kind=Utc when writing.
         var utc = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
-            v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+            v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         foreach (var property in b.Model.GetEntityTypes().SelectMany(t => t.GetProperties())
                      .Where(p => p.ClrType == typeof(DateTime)))
             property.SetValueConverter(utc);

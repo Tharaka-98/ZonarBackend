@@ -4,6 +4,7 @@
 |---|---|
 | **Backend repo** | https://github.com/Tharaka-98/ZonarBackend |
 | **Website repo** | https://github.com/Tharaka-98/AIEcoSystemZonar |
+| **Live API** | https://zonar-api-c0bt.onrender.com/swagger |
 | **Live website** | https://ai-eco-system-zonar.vercel.app |
 | **Telegram bot** | [@ZonaraDemo_bot](https://t.me/ZonaraDemo_bot) |
 | **Author** | Tharaka Senevirathne |
@@ -41,7 +42,7 @@ This is the backend for the Zonar website. It **scores community messages for qu
 | Concern | How it's handled |
 |---|---|
 | Framework | ASP.NET Core 10 (LTS) Minimal APIs |
-| Database | SQLite with Entity Framework Core 10 (zero setup; change the provider for PostgreSQL or SQL Server) |
+| Database | Entity Framework Core 10 — SQLite locally, PostgreSQL in production (chosen automatically from the connection string) |
 | Scoring | Explainable rule engine, plus an optional OpenAI-compatible LLM with automatic fallback |
 | Anti-abuse | Spam detection, 24h duplicate detection, daily points cap, and per-IP rate limiting |
 | Telegram | Plain `HttpClient` calls to the Bot API with long polling (no webhook or public URL needed) |
@@ -130,7 +131,7 @@ Use `appsettings.json`, environment variables (`Section__Key`) or `dotnet user-s
 
 | Setting | Default | Purpose |
 |---|---|---|
-| `ConnectionStrings:Zonar` | `Data Source=zonar.db` | SQLite file |
+| `ConnectionStrings:Zonar` | `Data Source=zonar.db` | SQLite file, or a PostgreSQL connection string (see [Database](#database)) |
 | `Cors:AllowedOrigins` | localhost:3000, Vercel URL | Front-end origins allowed to call the API |
 | `Scoring:Provider` | `Rules` | `Rules` or `OpenAI` |
 | `Scoring:ApiKey` / `Model` / `BaseUrl` | empty / `gpt-4o-mini` / OpenAI | LLM settings (any OpenAI-compatible API works) |
@@ -182,6 +183,24 @@ dotnet user-secrets set "Scoring:ApiKey" "sk-..."   # optional
 
 Vercel can't host .NET, so deploy the API separately. All the options below have free tiers.
 
+### Database
+
+The provider is chosen from the connection string, so the same build runs on either:
+
+| Connection string | Provider |
+|---|---|
+| `Data Source=zonar.db` | SQLite (default, for local development) |
+| `postgresql://user:pass@host/db?sslmode=require` | PostgreSQL |
+| `Host=...;Database=...;Username=...` | PostgreSQL |
+
+URI-style strings from Neon, Supabase, Render and Heroku are converted to Npgsql's key/value
+format automatically, and TLS is required unless the URI sets `sslmode` itself.
+
+**Why this matters:** a container filesystem is temporary. On a free host the SQLite file is
+deleted whenever the service restarts, redeploys or wakes from sleep. Pointing
+`ConnectionStrings__Zonar` at a managed PostgreSQL database (for example a free
+[Neon](https://neon.tech) project) keeps contributions and leaderboards permanently.
+
 **Render (recommended, free)**
 
 1. On [render.com](https://render.com), click **New +** → **Web Service** and connect this repository. Render detects the `Dockerfile` automatically. Choose the **Free** instance type.
@@ -195,10 +214,12 @@ Vercel can't host .NET, so deploy the API separately. All the options below have
 | `Privacy__HashSalt` | a long random string |
 | `Cors__AllowedOrigins__0` | `https://ai-eco-system-zonar.vercel.app` |
 | `Cors__AllowedOrigins__1` | `http://localhost:3000` |
+| `ConnectionStrings__Zonar` | PostgreSQL connection string — without it, data is lost on every restart |
+| `Seed__DemoData` | `false` once real contributions exist |
 
-3. Deploy, then check `https://<your-service>.onrender.com/health` and `/swagger`.
-4. In Vercel, set `NEXT_PUBLIC_API_URL=https://<your-service>.onrender.com` and redeploy the website.
-5. Free services sleep after 15 minutes without traffic. A free [UptimeRobot](https://uptimerobot.com) monitor on `/health` every 5 minutes keeps it (and the bot) awake.
+3. Deploy, then check `https://zonar-api-c0bt.onrender.com/health` and `/swagger`. (This project is deployed at `https://zonar-api-c0bt.onrender.com`.)
+4. In Vercel, set `NEXT_PUBLIC_API_URL=https://zonar-api-c0bt.onrender.com` and redeploy the website.
+5. Free services sleep after 15 minutes without traffic. A free [UptimeRobot](https://uptimerobot.com) monitor on `https://zonar-api-c0bt.onrender.com/health` every 5 minutes keeps it (and the bot) awake.
 
 > Only one copy of the bot can receive Telegram messages at a time. While the hosted version is running, set `Telegram:Enabled` to `false` locally.
 
